@@ -42,7 +42,7 @@ class DemoSDSeeder extends Seeder
         );
 
         // Dua data siswa dummy di kelas tersebut
-        Siswa::firstOrCreate(
+        $s1 = Siswa::firstOrCreate(
             [
                 'nama_siswa' => 'Ahmad Fajar',
                 'kelas_id' => $kelas->id,
@@ -56,8 +56,12 @@ class DemoSDSeeder extends Seeder
                 'kelas_id' => $kelas->id,
             ]
         );
+        if (empty($s1->finger_id)) {
+            $s1->finger_id = 1; // untuk uji IoT
+            $s1->save();
+        }
 
-        Siswa::firstOrCreate(
+        $s2 = Siswa::firstOrCreate(
             [
                 'nama_siswa' => 'Siti Aisyah',
                 'kelas_id' => $kelas->id,
@@ -71,5 +75,9 @@ class DemoSDSeeder extends Seeder
                 'kelas_id' => $kelas->id,
             ]
         );
+        if (empty($s2->finger_id)) {
+            $s2->finger_id = 2; // untuk uji IoT
+            $s2->save();
+        }
     }
 }

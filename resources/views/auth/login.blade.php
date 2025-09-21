@@ -99,7 +99,6 @@
                                         <div class="form-group">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <label for="password" class="small text-gray-600 mb-0">Password</label>
-                                                <a href="#" class="small">Lupa password?</a>
                                             </div>
                                             <input type="password" id="password" class="form-control form-control-user"
                                                 name="password" placeholder="••••••••" required>
