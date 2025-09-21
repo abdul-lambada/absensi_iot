@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
         // Panggil seeder khusus role
         $this->call([
             RoleUserSeeder::class,
+            DemoSDSeeder::class,
+            DemoSDN03Seeder::class,
         ]);
     }
 }
