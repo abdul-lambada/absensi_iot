@@ -40,9 +40,8 @@ class KelasController extends Controller
             $field = $def;
             $field['name'] = $name;
             $field['value'] = old($name, $item->{$name} ?? null);
-            if (($def['type'] ?? null) === 'select') {
-                $key = $def['options'] ?? null;
-                $field['options'] = $key ? $this->options($key) : [];
+            if (($field['type'] ?? '') === 'select' && ($field['options'] ?? null) === 'gurus') {
+                $field['options'] = $this->options('gurus');
             }
             $out[] = $field;
         }
@@ -134,6 +133,12 @@ class KelasController extends Controller
 
     public function destroy(Kelas $kelas)
     {
+        // Cegah penghapusan jika masih ada siswa terkait untuk menghindari error FK
+        if ($kelas->siswa()->exists()) {
+            return redirect()->route($this->routePrefix().'.index')
+                ->with('error', 'Tidak dapat menghapus kelas karena masih memiliki siswa. Pindahkan atau hapus siswa terlebih dahulu.');
+        }
+
         $kelas->delete();
         return redirect()->route($this->routePrefix().'.index')->with('success', $this->title().' berhasil dihapus');
     }
