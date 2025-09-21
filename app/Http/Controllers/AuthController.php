@@ -15,13 +15,13 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validated = $request->validate([
-            'username' => ['required', 'string'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
             'remember' => ['nullable', 'boolean'],
         ]);
 
         $credentials = [
-            'username' => $validated['username'],
+            'email' => $validated['email'],
             // Penting: key 'password' berisi plain text; Laravel akan validasi terhadap getAuthPassword()
             'password' => $validated['password'],
         ];
@@ -44,8 +44,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'username' => 'Username atau password salah.',
-        ])->onlyInput('username');
+            'email' => 'Email atau password salah.',
+        ])->onlyInput('email');
     }
 
     public function logout(Request $request)

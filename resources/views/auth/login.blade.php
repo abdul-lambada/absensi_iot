@@ -45,9 +45,8 @@
                                     <form class="user" method="POST" action="<?= e(route('login.attempt')) ?>">
                                         <?= csrf_field() ?>
                                         <div class="form-group">
-                                            <input type="text" class="form-control form-control-user" name="username"
-                                                value="<?= e(old('username')) ?>" placeholder="Username" required
-                                                autofocus>
+                                            <input type="email" class="form-control form-control-user" name="email"
+                                                value="<?= e(old('email')) ?>" placeholder="Email" required autofocus>
                                         </div>
                                         <div class="form-group">
                                             <input type="password" class="form-control form-control-user"

@@ -11,9 +11,10 @@ class RoleUserSeeder extends Seeder
     public function run(): void
     {
         // Admin
-        User::firstOrCreate(
-            ['username' => 'admin'],
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
             [
+                'username' => 'admin',
                 'nama_lengkap' => 'Administrator',
                 'password_hash' => Hash::make('password'),
                 'role' => 'admin',
@@ -22,9 +23,10 @@ class RoleUserSeeder extends Seeder
         );
 
         // Guru
-        User::firstOrCreate(
-            ['username' => 'guru'],
+        User::updateOrCreate(
+            ['email' => 'guru@example.com'],
             [
+                'username' => 'guru',
                 'nama_lengkap' => 'Guru',
                 'password_hash' => Hash::make('password'),
                 'role' => 'guru',
@@ -33,9 +35,10 @@ class RoleUserSeeder extends Seeder
         );
 
         // Kepala Sekolah
-        User::firstOrCreate(
-            ['username' => 'kepala'],
+        User::updateOrCreate(
+            ['email' => 'kepala@example.com'],
             [
+                'username' => 'kepala',
                 'nama_lengkap' => 'Kepala Sekolah',
                 'password_hash' => Hash::make('password'),
                 'role' => 'kepala_sekolah',
