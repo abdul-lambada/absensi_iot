@@ -9,8 +9,14 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex align-items-center justify-content-between">
         <h6 class="m-0 font-weight-bold text-primary">Filter</h6>
-        <a href="{{ route('rekap.index') }}" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-list mr-1"></i> Rekap Detail</a>
+        <div class="d-flex align-items-center">
+            <a href="{{ route('rekap.index') }}" class="btn btn-sm btn-outline-secondary mr-2">
+                <i class="fas fa-list mr-1"></i> Rekap Detail
+            </a>
+            <a href="{{ route('rekap.kelas.export', ['start_date' => $filters['start_date'] ?? null, 'end_date' => $filters['end_date'] ?? null, 'kelas_id' => $filters['kelas_id'] ?? null]) }}" class="btn btn-sm btn-success">
+                <i class="fas fa-file-csv mr-1"></i> Export CSV
+            </a>
+        </div>
     </div>
     <div class="card-body">
         <form method="GET" action="{{ route('rekap.kelas') }}" class="row">
@@ -59,25 +65,27 @@
             $chartId = 'spark_' . $data['kelas_id'];
         @endphp
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase">{{ $data['nama_kelas'] }}</div>
-                        <span class="badge badge-pill badge-primary">{{ $data['total'] ?? 0 }} log</span>
-                    </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="h5 mb-0 font-weight-bold text-gray-800 mr-2">{{ $percentHadir }}%</div>
-                        <div class="text-xs text-muted">Hadir</div>
-                    </div>
-                    <canvas id="{{ $chartId }}" height="60"></canvas>
-                    <div class="mt-2 d-flex justify-content-between text-xs">
-                        <span class="text-success">H {{ $series[0] }}</span>
-                        <span class="text-warning">I {{ $series[1] }}</span>
-                        <span class="text-info">S {{ $series[2] }}</span>
-                        <span class="text-danger">A {{ $series[3] }}</span>
+            <a href="{{ route('rekap.kelas.detail', ['kelas' => $data['kelas_id'], 'start_date' => $filters['start_date'] ?? null, 'end_date' => $filters['end_date'] ?? null]) }}" class="text-decoration-none" style="color: inherit;">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase">{{ $data['nama_kelas'] }}</div>
+                            <span class="badge badge-pill badge-primary">{{ $data['total'] ?? 0 }} log</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="h5 mb-0 font-weight-bold text-gray-800 mr-2">{{ $percentHadir }}%</div>
+                            <div class="text-xs text-muted">Hadir</div>
+                        </div>
+                        <canvas id="{{ $chartId }}" height="60"></canvas>
+                        <div class="mt-2 d-flex justify-content-between text-xs">
+                            <span class="text-success">H {{ $series[0] }}</span>
+                            <span class="text-warning">I {{ $series[1] }}</span>
+                            <span class="text-info">S {{ $series[2] }}</span>
+                            <span class="text-danger">A {{ $series[3] }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     @empty
         <div class="col-12">

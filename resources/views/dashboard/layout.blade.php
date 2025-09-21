@@ -92,6 +92,9 @@
                     <a class="nav-link" href="{{ route('rekap.index') }}">
                         <i class="fas fa-fw fa-chart-line"></i>
                         <span>Rekap Absensi</span>
+                        @if(($lowAttendanceKelasCount ?? 0) > 0)
+                            <span class="badge badge-danger badge-pill ml-2" title="Kelas dengan hadir < 75% (hari ini)">{{ $lowAttendanceKelasCount }}</span>
+                        @endif
                     </a>
                 </li>
             @endif

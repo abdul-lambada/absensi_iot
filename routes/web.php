@@ -45,6 +45,8 @@ Route::middleware(['auth', 'role:admin,guru,kepala_sekolah'])->group(function ()
         Route::get('/rekap-absensi/export', [RekapAbsensiController::class, 'export'])->name('rekap.export');
         // Ringkasan per Kelas (agregat)
         Route::get('/rekap-kelas', [\App\Http\Controllers\RekapKelasController::class, 'index'])->name('rekap.kelas');
+        Route::get('/rekap-kelas/export', [\App\Http\Controllers\RekapKelasController::class, 'export'])->name('rekap.kelas.export');
+        Route::get('/rekap-kelas/{kelas}/detail', [\App\Http\Controllers\RekapKelasController::class, 'detail'])->name('rekap.kelas.detail');
     });
 
     Route::middleware(['role:guru'])->group(function () {
