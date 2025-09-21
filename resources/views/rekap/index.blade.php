@@ -40,7 +40,9 @@
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">Hasil Rekap</h6>
         <div>
-            <!-- Placeholder untuk aksi export cetak di masa depan -->
+            <a class="btn btn-success btn-sm" href="{{ route('rekap.export', request()->query()) }}">
+                <i class="fas fa-file-csv mr-1"></i> Export CSV
+            </a>
         </div>
     </div>
     <div class="card-body">
