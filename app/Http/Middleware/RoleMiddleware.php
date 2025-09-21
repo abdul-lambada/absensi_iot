@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class RoleMiddleware
 {
@@ -18,12 +17,10 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        // Ambil user dari auth; untuk dev tanpa auth, fallback ke user pertama
-        $user = Auth::user() ?? User::first();
-
+        // Wajib login
+        $user = Auth::user();
         if (!$user) {
-            // Jika tidak ada user sama sekali, arahkan ke halaman welcome
-            return redirect()->route('welcome');
+            return redirect()->route('login');
         }
 
         // Jika middleware dipasang tanpa parameter role, lewati

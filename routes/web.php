@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AuthController;
 
 // Halaman Welcome (simple landing)
 Route::view('/welcome', 'welcome')->name('welcome');
@@ -11,20 +12,25 @@ Route::get('/', function () {
     return redirect()->route('welcome');
 });
 
-// Route index dashboard dengan auto-redirect berdasarkan role via controller
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('role:admin,guru,kepala_sekolah')
-    ->name('dashboard.index');
+// Auth routes (SB Admin 2)
+Route::get('/login', [AuthController::class, 'showLoginForm'])->middleware('guest')->name('login');
+Route::post('/login', [AuthController::class, 'login'])->middleware('guest')->name('login.attempt');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-// Grup dashboard dengan middleware role spesifik
-Route::middleware(['role:admin'])->group(function () {
-    Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
-});
+// Route index dashboard dengan auto-redirect berdasarkan role via controller (butuh auth)
+Route::middleware(['auth', 'role:admin,guru,kepala_sekolah'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
-Route::middleware(['role:guru'])->group(function () {
-    Route::get('/dashboard/guru', [DashboardController::class, 'guru'])->name('dashboard.guru');
-});
+    // Grup dashboard dengan middleware role spesifik
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
+    });
 
-Route::middleware(['role:kepala_sekolah'])->group(function () {
-    Route::get('/dashboard/kepala-sekolah', [DashboardController::class, 'kepalaSekolah'])->name('dashboard.kepala');
+    Route::middleware(['role:guru'])->group(function () {
+        Route::get('/dashboard/guru', [DashboardController::class, 'guru'])->name('dashboard.guru');
+    });
+
+    Route::middleware(['role:kepala_sekolah'])->group(function () {
+        Route::get('/dashboard/kepala-sekolah', [DashboardController::class, 'kepalaSekolah'])->name('dashboard.kepala');
+    });
 });

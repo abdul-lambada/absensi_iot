@@ -7,14 +7,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use Carbon\Carbon;
-use App\Models\User;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $user = Auth::user() ?? User::first();
-        $role = $user?->role ?? 'admin';
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        $role = $user->role;
 
         if ($role === 'guru') {
             return $this->guru();
@@ -49,10 +51,11 @@ class DashboardController extends Controller
 
     public function guru()
     {
-        $user = Auth::user() ?? User::first();
+        $user = Auth::user();
         $waliId = $user?->id ?? 0;
         try {
-            $kelasIds = DB::table('kelas')->where('wali_kelas_id', $waliId)->pluck('id');
+            // NOTE: sesuaikan kolom foreign key di tabel kelas jika berbeda
+            $kelasIds = DB::table('kelas')->where('guru', $waliId)->pluck('id');
             $siswaCount = DB::table('siswa')->whereIn('kelas_id', $kelasIds)->count();
             $absensiToday = DB::table('absensi_harian')
                 ->whereDate('tanggal', Carbon::today())

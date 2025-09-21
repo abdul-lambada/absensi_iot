@@ -46,4 +46,12 @@ class User extends Authenticatable
             'password_hash' => 'hashed',
         ];
     }
+
+    /**
+     * Override password attribute used by the Auth provider.
+     */
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
 }
