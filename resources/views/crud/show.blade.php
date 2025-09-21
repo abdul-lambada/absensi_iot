@@ -2,8 +2,7 @@
 @section('page_title', $page_title ?? $title ?? 'Detail')
 
 @section('content')
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">{{ $page_title ?? $title ?? 'Detail' }}</h1>
+<div class="d-sm-flex align-items-center justify-content-end mb-4">
     <div>
         @php($paramKey = $paramKey ?? str_replace('-', '_', $routePrefix))
         <button type="button" class="btn btn-sm btn-danger shadow-sm btn-delete" data-action="{{ route($routePrefix.'.destroy', [$paramKey => $item->id]) }}" data-name="{{ $title ?? 'Item' }}: {{ $fields[0]['value'] ?? ($item->name ?? $item->id) }}"><i class="fas fa-trash fa-sm text-white-50"></i> Hapus</button>

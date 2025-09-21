@@ -2,9 +2,8 @@
 @section('page_title', $page_title ?? $title ?? 'Edit Profil')
 
 @section('content')
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">{{ $page_title ?? $title ?? 'Edit Profil' }}</h1>
-    <a href="{{ route('profile.index') }}" class="btn btn-sm btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
+<div class="d-sm-flex align-items-center justify-content-end mb-4">
+    <a href="{{ route('profile.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
 </div>
 
 @if(session('success'))
