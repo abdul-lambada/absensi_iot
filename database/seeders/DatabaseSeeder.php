@@ -16,12 +16,18 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'nama_lengkap' => 'Administrator',
-            'username' => 'admin',
-            'password_hash' => Hash::make('password'),
-            'role' => 'admin',
-            'no_telepon' => '081234567890',
+        // Opsional: contoh 1 user admin default dari factory
+        // User::factory()->create([
+        //     'nama_lengkap' => 'Administrator',
+        //     'username' => 'admin',
+        //     'password_hash' => Hash::make('password'),
+        //     'role' => 'admin',
+        //     'no_telepon' => '081234567890',
+        // ]);
+
+        // Panggil seeder khusus role
+        $this->call([
+            RoleUserSeeder::class,
         ]);
     }
 }
