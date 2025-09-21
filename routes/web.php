@@ -20,6 +20,14 @@ Route::get('/', function () {
     return redirect()->route('welcome');
 });
 
+// API untuk IoT (tanpa auth session; gunakan throttle)
+Route::prefix('api/v1')->group(function () {
+    Route::post('/absensi', [\App\Http\Controllers\Api\IoTAbsensiController::class, 'store'])
+        ->middleware('throttle:60,1')
+        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+        ->name('api.absensi.store');
+});
+
 // Auth routes (SB Admin 2)
 Route::get('/login', [AuthController::class, 'showLoginForm'])->middleware('guest')->name('login');
 Route::post('/login', [AuthController::class, 'login'])->middleware('guest')->name('login.attempt');

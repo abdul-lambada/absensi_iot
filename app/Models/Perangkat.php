@@ -12,5 +12,7 @@ class Perangkat extends Model
         'nama_perangkat',
         'lokasi_perangkat',
         'status_perangkat',
+        'device_uid',
+        'api_key',
     ];
 }

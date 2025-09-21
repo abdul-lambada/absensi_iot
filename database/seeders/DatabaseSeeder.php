@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             RoleUserSeeder::class,
             DemoSDSeeder::class,
             DemoSDN03Seeder::class,
+            DeviceDemoSeeder::class,
         ]);
     }
 }
