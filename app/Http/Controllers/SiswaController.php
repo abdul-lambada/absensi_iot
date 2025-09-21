@@ -18,6 +18,7 @@ class SiswaController extends Controller
             'nama_siswa' => ['label' => 'Nama Siswa', 'type' => 'text', 'rules' => 'required|string|max:255'],
             'jenis_kelamin' => ['label' => 'Jenis Kelamin', 'type' => 'select', 'options' => 'jk', 'rules' => 'required|in:L,P'],
             'template_sidik_jari' => ['label' => 'Template Sidik Jari', 'type' => 'textarea', 'rules' => 'nullable|string'],
+            'finger_id' => ['label' => 'Finger ID (dari sensor)', 'type' => 'text', 'rules' => 'nullable|integer|unique:siswa,finger_id'],
             'nama_orang_tua' => ['label' => 'Nama Orang Tua', 'type' => 'text', 'rules' => 'nullable|string|max:255'],
             'no_telepon_orang_tua' => ['label' => 'No. Telepon Orang Tua', 'type' => 'text', 'rules' => 'nullable|string|max:20'],
             'kelas_id' => ['label' => 'Kelas', 'type' => 'select', 'options' => 'kelas_list', 'rules' => 'required|exists:kelas,id'],
@@ -26,7 +27,7 @@ class SiswaController extends Controller
 
     private function columns(): array
     {
-        return ['Nama Siswa', 'JK', 'Kelas'];
+        return ['Nama Siswa', 'JK', 'Kelas', 'Finger ID'];
     }
 
     private function options(string $key): array
@@ -36,6 +37,26 @@ class SiswaController extends Controller
             'kelas_list' => Kelas::orderBy('nama_kelas')->get(['id','nama_kelas'])->map(fn($k)=>['value'=>$k->id,'label'=>$k->nama_kelas])->toArray(),
             default => [],
         };
+    }
+
+    private function validationMessages(): array
+    {
+        return [
+            'required' => ':attribute wajib diisi.',
+            'string' => ':attribute harus berupa teks.',
+            'max' => ':attribute maksimal :max karakter.',
+            'in' => 'Pilihan :attribute tidak valid.',
+            'exists' => ':attribute tidak ditemukan.',
+            'integer' => ':attribute harus berupa angka.',
+            'unique' => ':attribute sudah digunakan.',
+        ];
+    }
+
+    private function validationAttributes(): array
+    {
+        return collect($this->fields())->mapWithKeys(fn($def,$name)=>[
+            $name => $def['label'] ?? ucfirst(str_replace('_',' ', $name))
+        ])->toArray();
     }
 
     private function buildFields(array $fields, $item = null): array
@@ -60,7 +81,12 @@ class SiswaController extends Controller
         $rows = $items->getCollection()->map(function($item){
             return [
                 'id' => $item->id,
-                'cols' => [$item->nama_siswa, $item->jenis_kelamin, optional($item->kelas)->nama_kelas ?? '-'],
+                'cols' => [
+                    $item->nama_siswa,
+                    $item->jenis_kelamin,
+                    optional($item->kelas)->nama_kelas ?? '-',
+                    $item->finger_id ?? '-',
+                ],
             ];
         });
 
@@ -91,7 +117,7 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $rules = collect($this->fields())->mapWithKeys(fn($v,$k)=>[$k=>$v['rules']??''])->filter()->toArray();
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, $this->validationMessages(), $this->validationAttributes());
         $model = new Siswa();
         foreach ($this->fields() as $name => $_) {
             $model->{$name} = $data[$name] ?? null;
@@ -128,7 +154,11 @@ class SiswaController extends Controller
     public function update(Request $request, Siswa $siswa)
     {
         $rules = collect($this->fields())->mapWithKeys(fn($v,$k)=>[$k=>$v['rules']??''])->filter()->toArray();
-        $data = $request->validate($rules);
+        // Sesuaikan unik finger_id untuk mengabaikan ID saat update
+        if (isset($rules['finger_id'])) {
+            $rules['finger_id'] = 'nullable|integer|unique:siswa,finger_id,' . $siswa->id;
+        }
+        $data = $request->validate($rules, $this->validationMessages(), $this->validationAttributes());
         foreach ($this->fields() as $name => $_) {
             $siswa->{$name} = $data[$name] ?? null;
         }

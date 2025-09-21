@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Perangkat;
-use App\Models\AbsensiHarian;
 use Illuminate\Http\Request;
 
 class PerangkatController extends Controller
@@ -15,13 +14,24 @@ class PerangkatController extends Controller
     {
         return [
             'nama_perangkat' => ['label' => 'Nama Perangkat', 'type' => 'text', 'rules' => 'required|string|max:255'],
-            'keterangan' => ['label' => 'Keterangan', 'type' => 'textarea', 'rules' => 'nullable|string'],
+            'lokasi_perangkat' => ['label' => 'Lokasi Perangkat', 'type' => 'text', 'rules' => 'nullable|string|max:255'],
+            'status_perangkat' => ['label' => 'Status', 'type' => 'select', 'options' => 'status_opts', 'rules' => 'required|in:aktif,nonaktif'],
+            'device_uid' => ['label' => 'Device UID', 'type' => 'text', 'rules' => 'required|string|max:100|unique:perangkat,device_uid'],
+            'api_key' => ['label' => 'API Key', 'type' => 'password', 'rules' => 'required|string|max:100|unique:perangkat,api_key'],
         ];
     }
 
     private function columns(): array
     {
-        return ['Nama Perangkat', 'Keterangan'];
+        return ['Nama Perangkat', 'Lokasi', 'Status', 'Device UID'];
+    }
+
+    private function options(string $key): array
+    {
+        return match ($key) {
+            'status_opts' => [ ['value' => 'aktif', 'label' => 'Aktif'], ['value' => 'nonaktif', 'label' => 'Nonaktif'] ],
+            default => [],
+        };
     }
 
     private function buildFields(array $fields, $item = null): array
@@ -31,9 +41,38 @@ class PerangkatController extends Controller
             $field = $def;
             $field['name'] = $name;
             $field['value'] = old($name, $item->{$name} ?? null);
+            if (($def['type'] ?? null) === 'select') {
+                $key = $def['options'] ?? null;
+                $field['options'] = $key ? $this->options($key) : [];
+            }
             $out[] = $field;
         }
         return $out;
+    }
+
+    private function validationMessages(): array
+    {
+        return [
+            'required' => ':attribute wajib diisi.',
+            'string' => ':attribute harus berupa teks.',
+            'max' => ':attribute maksimal :max karakter.',
+            'in' => 'Pilihan :attribute tidak valid.',
+            'unique' => ':attribute sudah digunakan.',
+        ];
+    }
+
+    private function validationAttributes(): array
+    {
+        return collect($this->fields())->mapWithKeys(fn($def,$name)=>[
+            $name => $def['label'] ?? ucfirst(str_replace('_',' ', $name))
+        ])->toArray();
+    }
+
+    private function maskSecret(?string $value): string
+    {
+        if (!$value) return '-';
+        $last4 = substr($value, -4);
+        return '********' . $last4;
     }
 
     public function index()
@@ -42,7 +81,7 @@ class PerangkatController extends Controller
         $rows = $items->getCollection()->map(function($item){
             return [
                 'id' => $item->id,
-                'cols' => [$item->nama_perangkat, str($item->keterangan)->limit(40)],
+                'cols' => [$item->nama_perangkat, $item->lokasi_perangkat, $item->status_perangkat, $item->device_uid],
             ];
         });
 
@@ -73,7 +112,7 @@ class PerangkatController extends Controller
     public function store(Request $request)
     {
         $rules = collect($this->fields())->mapWithKeys(fn($v,$k)=>[$k=>$v['rules']??''])->filter()->toArray();
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, $this->validationMessages(), $this->validationAttributes());
         $model = new Perangkat();
         foreach ($this->fields() as $name => $_) {
             $model->{$name} = $data[$name] ?? null;
@@ -84,12 +123,21 @@ class PerangkatController extends Controller
 
     public function show(Perangkat $perangkat)
     {
+        $fields = $this->buildFields($this->fields(), $perangkat);
+        // Mask API Key hanya pada tampilan detail
+        $fields = array_map(function($f){
+            if (($f['name'] ?? null) === 'api_key') {
+                $f['value'] = $this->maskSecret($f['value'] ?? null);
+            }
+            return $f;
+        }, $fields);
+
         return view('crud.show', [
             'title' => 'Detail ' . $this->title(),
             'page_title' => 'Detail ' . $this->title(),
             'routePrefix' => $this->routePrefix(),
             'item' => $perangkat,
-            'fields' => $this->buildFields($this->fields(), $perangkat),
+            'fields' => $fields,
         ]);
     }
 
@@ -110,9 +158,24 @@ class PerangkatController extends Controller
     public function update(Request $request, Perangkat $perangkat)
     {
         $rules = collect($this->fields())->mapWithKeys(fn($v,$k)=>[$k=>$v['rules']??''])->filter()->toArray();
-        $data = $request->validate($rules);
+        if (isset($rules['device_uid'])) {
+            $rules['device_uid'] = 'required|string|max:100|unique:perangkat,device_uid,' . $perangkat->id;
+        }
+        if (isset($rules['api_key'])) {
+            // Pada edit, API Key bersifat opsional dan unik bila diisi
+            $rules['api_key'] = 'nullable|string|max:100|unique:perangkat,api_key,' . $perangkat->id;
+        }
+        $data = $request->validate($rules, $this->validationMessages(), $this->validationAttributes());
+
         foreach ($this->fields() as $name => $_) {
-            $perangkat->{$name} = $data[$name] ?? null;
+            if ($name === 'api_key') {
+                // Jangan overwrite jika kosong (user tidak ingin mengubah)
+                if (isset($data['api_key']) && $data['api_key'] !== null && $data['api_key'] !== '') {
+                    $perangkat->api_key = $data['api_key'];
+                }
+            } else {
+                $perangkat->{$name} = $data[$name] ?? null;
+            }
         }
         $perangkat->save();
         return redirect()->route($this->routePrefix().'.index')->with('success', $this->title().' berhasil diperbarui');
@@ -120,14 +183,6 @@ class PerangkatController extends Controller
 
     public function destroy(Perangkat $perangkat)
     {
-        // Cegah penghapusan jika perangkat dipakai pada absensi (masuk/pulang)
-        $usedAsMasuk = AbsensiHarian::where('perangkat_masuk_id', $perangkat->id)->exists();
-        $usedAsPulang = AbsensiHarian::where('perangkat_pulang_id', $perangkat->id)->exists();
-        if ($usedAsMasuk || $usedAsPulang) {
-            return redirect()->route($this->routePrefix().'.index')
-                ->with('error', 'Tidak dapat menghapus perangkat karena digunakan pada data absensi. Hapus atau ubah data absensi terkait terlebih dahulu.');
-        }
-
         $perangkat->delete();
         return redirect()->route($this->routePrefix().'.index')->with('success', $this->title().' berhasil dihapus');
     }

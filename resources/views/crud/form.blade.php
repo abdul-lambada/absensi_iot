@@ -33,6 +33,11 @@
                                     <option value="{{ $opt['value'] }}" {{ (string)old($field['name'], $field['value'] ?? '') === (string)$opt['value'] ? 'selected' : '' }}>{{ $opt['label'] }}</option>
                                 @endforeach
                             </select>
+                        @elseif($type === 'password')
+                            <input type="password" name="{{ $field['name'] }}" class="form-control @error($field['name']) is-invalid @enderror" />
+                            @if(($mode ?? '') === 'edit')
+                                <small class="text-muted">Kosongkan untuk tidak mengubah nilai.</small>
+                            @endif
                         @else
                             <input type="{{ $type }}" name="{{ $field['name'] }}" value="{{ old($field['name'], $field['value'] ?? '') }}" class="form-control @error($field['name']) is-invalid @enderror" />
                         @endif
