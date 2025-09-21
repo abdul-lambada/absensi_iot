@@ -10,10 +10,11 @@ class ExampleTest extends TestCase
     /**
      * A basic test example.
      */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_root_redirects_to_welcome_and_welcome_is_ok(): void
     {
         $response = $this->get('/');
+        $response->assertRedirect(route('welcome'));
 
-        $response->assertStatus(200);
+        $this->get('/welcome')->assertStatus(200);
     }
 }
