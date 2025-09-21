@@ -43,6 +43,8 @@ Route::middleware(['auth', 'role:admin,guru,kepala_sekolah'])->group(function ()
         // Rekap Absensi (semua role di grup ini)
         Route::get('/rekap-absensi', [RekapAbsensiController::class, 'index'])->name('rekap.index');
         Route::get('/rekap-absensi/export', [RekapAbsensiController::class, 'export'])->name('rekap.export');
+        // Ringkasan per Kelas (agregat)
+        Route::get('/rekap-kelas', [\App\Http\Controllers\RekapKelasController::class, 'index'])->name('rekap.kelas');
     });
 
     Route::middleware(['role:guru'])->group(function () {
