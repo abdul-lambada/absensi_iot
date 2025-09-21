@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Perangkat;
+use App\Models\AbsensiHarian;
 use Illuminate\Http\Request;
 
 class PerangkatController extends Controller
@@ -119,6 +120,14 @@ class PerangkatController extends Controller
 
     public function destroy(Perangkat $perangkat)
     {
+        // Cegah penghapusan jika perangkat dipakai pada absensi (masuk/pulang)
+        $usedAsMasuk = AbsensiHarian::where('perangkat_masuk_id', $perangkat->id)->exists();
+        $usedAsPulang = AbsensiHarian::where('perangkat_pulang_id', $perangkat->id)->exists();
+        if ($usedAsMasuk || $usedAsPulang) {
+            return redirect()->route($this->routePrefix().'.index')
+                ->with('error', 'Tidak dapat menghapus perangkat karena digunakan pada data absensi. Hapus atau ubah data absensi terkait terlebih dahulu.');
+        }
+
         $perangkat->delete();
         return redirect()->route($this->routePrefix().'.index')->with('success', $this->title().' berhasil dihapus');
     }

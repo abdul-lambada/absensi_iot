@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -69,6 +70,7 @@ class UserController extends Controller
         $rows = $items->getCollection()->map(function($item){
             return [
                 'id' => $item->id,
+                'name' => $item->nama_lengkap,
                 'cols' => [
                     $item->nama_lengkap,
                     $item->username,
@@ -82,6 +84,7 @@ class UserController extends Controller
             'title' => 'Kelola ' . $this->title(),
             'page_title' => 'Kelola ' . $this->title(),
             'routePrefix' => $this->routePrefix(),
+            'paramKey' => 'user',
             'headers' => $this->columns(),
             'items' => $items,
             'rows' => $rows,
@@ -133,6 +136,7 @@ class UserController extends Controller
             'title' => 'Detail ' . $this->title(),
             'page_title' => 'Detail ' . $this->title(),
             'routePrefix' => $this->routePrefix(),
+            'paramKey' => 'user',
             'item' => $user,
             'fields' => $this->buildFields($fields, $user),
         ]);
@@ -178,6 +182,12 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        // Cegah penghapusan jika menjadi wali kelas (FK kelas.guru restrict)
+        if (Kelas::where('guru', $user->id)->exists()) {
+            return redirect()->route($this->routePrefix().'.index')
+                ->with('error', 'Tidak dapat menghapus pengguna karena menjadi wali kelas di salah satu kelas. Pindahkan wali kelas terlebih dahulu.');
+        }
+
         $user->delete();
         return redirect()->route($this->routePrefix().'.index')->with('success', $this->title().' berhasil dihapus');
     }

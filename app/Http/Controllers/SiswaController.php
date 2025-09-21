@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Siswa;
 use App\Models\Kelas;
+use App\Models\AbsensiHarian;
 use Illuminate\Http\Request;
 
 class SiswaController extends Controller
@@ -137,6 +138,12 @@ class SiswaController extends Controller
 
     public function destroy(Siswa $siswa)
     {
+        // Cegah penghapusan jika siswa memiliki riwayat absensi (FK restrict)
+        if (AbsensiHarian::where('siswa_id', $siswa->id)->exists()) {
+            return redirect()->route($this->routePrefix().'.index')
+                ->with('error', 'Tidak dapat menghapus siswa karena memiliki riwayat absensi. Hapus data absensi terlebih dahulu.');
+        }
+
         $siswa->delete();
         return redirect()->route($this->routePrefix().'.index')->with('success', $this->title().' berhasil dihapus');
     }

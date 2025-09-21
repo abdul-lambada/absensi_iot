@@ -51,11 +51,9 @@
                             <td>
                                 <a href="{{ route($routePrefix.'.show', [$paramKey => $row['id']]) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route($routePrefix.'.edit', [$paramKey => $row['id']]) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
-                                <form action="{{ route($routePrefix.'.destroy', [$paramKey => $row['id']]) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-danger btn-delete" data-action="{{ route($routePrefix.'.destroy', [$paramKey => $row['id']]) }}" data-name="{{ $row['name'] ?? ($row['cols'][0] ?? ('ID ' . $row['id'])) }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                     @empty
@@ -78,4 +76,63 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Konfirmasi Hapus (SB Admin 2 / Bootstrap 4) -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteLabel">Konfirmasi Hapus</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">Apakah Anda yakin ingin menghapus data berikut?</div>
+        <div class="font-weight-bold text-danger" id="itemNameToDelete">Item</div>
+        <div class="small text-muted mt-2">Tindakan ini tidak dapat dibatalkan.</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+        <form id="deleteForm" action="#" method="POST" class="d-inline">
+          @csrf
+          @method('DELETE')
+          <button type="submit" class="btn btn-danger" id="btnConfirmDelete">Hapus</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var modal = $('#confirmDeleteModal');
+        var form = document.getElementById('deleteForm');
+        var nameTarget = document.getElementById('itemNameToDelete');
+        var btnSubmit = document.getElementById('btnConfirmDelete');
+
+        $(document).on('click', '.btn-delete', function () {
+            var action = $(this).data('action');
+            var name = $(this).data('name');
+            if (form && action) {
+                form.setAttribute('action', action);
+            }
+            if (nameTarget && typeof name !== 'undefined') {
+                nameTarget.textContent = name;
+            }
+            modal.modal('show');
+        });
+
+        if (form) {
+            form.addEventListener('submit', function() {
+                if (btnSubmit) {
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span> Menghapus...';
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection
