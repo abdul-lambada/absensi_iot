@@ -38,7 +38,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item {{ request()->routeIs('dashboard.*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('dashboard.index') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
@@ -53,25 +53,25 @@
             </div>
 
             @if(auth()->check() && in_array(auth()->user()->role, ['admin','kepala_sekolah']))
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('kelas.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('kelas.index') }}">
                         <i class="fas fa-fw fa-school"></i>
                         <span>Data Kelas</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('siswa.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('siswa.index') }}">
                         <i class="fas fa-fw fa-user-graduate"></i>
                         <span>Data Siswa</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('perangkat.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('perangkat.index') }}">
                         <i class="fas fa-fw fa-microchip"></i>
                         <span>Perangkat</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('users.index') }}">
                         <i class="fas fa-fw fa-users-cog"></i>
                         <span>Data Pengguna</span>
@@ -88,13 +88,13 @@
             </div>
 
             @if(auth()->check() && in_array(auth()->user()->role, ['admin','guru','kepala_sekolah']))
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('absensi-harian.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('absensi-harian.index') }}">
                         <i class="fas fa-fw fa-clipboard-check"></i>
                         <span>Absensi Harian</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('rekap.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('rekap.index') }}">
                         <i class="fas fa-fw fa-chart-line"></i>
                         <span>Rekap Absensi</span>
@@ -106,7 +106,7 @@
             @endif
 
             @if(auth()->check() && auth()->user()->role === 'guru')
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('kelas-saya.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('kelas-saya.index') }}">
                         <i class="fas fa-fw fa-chalkboard-teacher"></i>
                         <span>Kelas Saya</span>
