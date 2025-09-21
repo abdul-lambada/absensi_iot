@@ -93,7 +93,7 @@ class ProfileController extends Controller
                 ->where('user_id', $user->id)
                 ->orderByDesc('last_activity')
                 ->limit(10)
-                ->get(['ip_address','user_agent','last_activity']);
+                ->get(['ip_address', 'user_agent', 'last_activity']);
             foreach ($rows as $r) {
                 $activities[] = [
                     'ip' => $r->ip_address,
@@ -138,7 +138,9 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
-        if (!$user) { return redirect()->route('login'); }
+        if (!$user) {
+            return redirect()->route('login');
+        }
         return view('profile.edit', [
             'title' => 'Edit Profil',
             'page_title' => 'Edit Profil',
@@ -149,12 +151,14 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        if (!$user) { return redirect()->route('login'); }
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
         $validated = $request->validate([
-            'nama_lengkap' => ['required','string','max:255'],
-            'email' => ['nullable','email','max:255','unique:users,email,'. $user->id],
-            'avatar' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:2048'],
+            'nama_lengkap' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         // Update basic fields
@@ -165,12 +169,19 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('avatars', 'public');
             if (!empty($user->avatar_path)) {
-                try { Storage::disk('public')->delete($user->avatar_path); } catch (\Throwable $e) {}
+                try {
+                    Storage::disk('public')->delete($user->avatar_path);
+                } catch (\Throwable $e) {
+                }
             }
             $user->avatar_path = $path;
         }
 
-        $user->save();
+        DB::table('users')->where('id', $user->id)->update([
+            'nama_lengkap' => $user->nama_lengkap,
+            'email' => $user->email,
+            'avatar_path' => $user->avatar_path
+        ]);
 
         return redirect()->route('profile.index')->with('success', 'Profil berhasil diperbarui.');
     }
@@ -178,11 +189,13 @@ class ProfileController extends Controller
     public function updatePassword(Request $request)
     {
         $user = Auth::user();
-        if (!$user) { return redirect()->route('login'); }
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
         $validated = $request->validate([
-            'current_password' => ['required','string'],
-            'new_password' => ['required','string','min:8','confirmed'],
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         if (!Hash::check($validated['current_password'], $user->password_hash)) {
@@ -190,7 +203,9 @@ class ProfileController extends Controller
         }
 
         $user->password_hash = Hash::make($validated['new_password']);
-        $user->save();
+        DB::table('users')->where('id', $user->id)->update([
+            'password_hash' => $user->password_hash
+        ]);
 
         return redirect()->route('profile.index')->with('success', 'Password berhasil diperbarui.');
     }
