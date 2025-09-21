@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\KelasController;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\PerangkatController;
+use App\Http\Controllers\AbsensiHarianController;
 
 // Halaman Welcome (simple landing)
 Route::view('/welcome', 'welcome')->name('welcome');
@@ -24,6 +28,16 @@ Route::middleware(['auth', 'role:admin,guru,kepala_sekolah'])->group(function ()
     // Grup dashboard dengan middleware role spesifik
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
+
+        // CRUD hanya Admin (per-controller)
+        Route::resource('kelas', KelasController::class)->names('kelas');
+        Route::resource('siswa', SiswaController::class)->names('siswa');
+        Route::resource('perangkat', PerangkatController::class)->names('perangkat');
+    });
+
+    // Absensi dapat diakses Admin dan Guru
+    Route::middleware(['role:admin,guru'])->group(function () {
+        Route::resource('absensi-harian', AbsensiHarianController::class)->names('absensi-harian');
     });
 
     Route::middleware(['role:guru'])->group(function () {
