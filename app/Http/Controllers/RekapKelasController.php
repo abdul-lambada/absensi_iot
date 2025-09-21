@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Kelas;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RekapKelasController extends Controller
 {
@@ -63,6 +64,24 @@ class RekapKelasController extends Controller
             $rekap[$id]['total'] = ($data['hadir'] ?? 0) + ($data['izin'] ?? 0) + ($data['sakit'] ?? 0) + ($data['alpa'] ?? 0);
         }
 
+        // Server-side pagination for cards
+        $perPage = 12;
+        $page = max(1, (int) $request->query('page', 1));
+        $rekapValues = array_values($rekap);
+        $total = count($rekapValues);
+        $offset = ($page - 1) * $perPage;
+        $slice = array_slice($rekapValues, $offset, $perPage);
+        $paginator = new LengthAwarePaginator(
+            $slice,
+            $total,
+            $perPage,
+            $page,
+            [
+                'path' => url()->current(),
+                'query' => $request->query(),
+            ]
+        );
+
         // Opsi kelas untuk filter
         $kelasOptions = Kelas::when($user && $user->role === 'guru', function($q) use ($user) {
                 $q->where('guru', $user->id);
@@ -73,7 +92,7 @@ class RekapKelasController extends Controller
         return view('rekap.kelas', [
             'title' => 'Ringkasan Per Kelas',
             'page_title' => 'Ringkasan Per Kelas',
-            'rekap' => $rekap, // array keyed by kelas_id
+            'items' => $paginator, // paginated items
             'kelasOptions' => $kelasOptions,
             'filters' => [
                 'start_date' => $start,
@@ -129,36 +148,33 @@ class RekapKelasController extends Controller
                 $rekap[$id][$status] += (int) $r->jumlah;
             }
         }
+
         foreach ($rekap as $id => $d) {
-            $total = ($d['hadir'] ?? 0) + ($d['izin'] ?? 0) + ($d['sakit'] ?? 0) + ($d['alpa'] ?? 0);
-            $rekap[$id]['total'] = $total;
-            $rekap[$id]['percent_hadir'] = $total > 0 ? round(($d['hadir'] / $total) * 100) : 0;
+            $rekap[$id]['total'] = ($d['hadir'] ?? 0) + ($d['izin'] ?? 0) + ($d['sakit'] ?? 0) + ($d['alpa'] ?? 0);
         }
 
         $filename = 'rekap_kelas_' . now()->format('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        $callback = function() use ($rekap) {
+        return response()->streamDownload(function() use ($rekap) {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['Kelas', 'Hadir', 'Izin', 'Sakit', 'Alpa', 'Total', 'Persen_Hadir']);
             foreach ($rekap as $data) {
+                $total = (int)($data['total'] ?? 0);
+                $hadir = (int)($data['hadir'] ?? 0);
+                $percent = $total > 0 ? round(($hadir / $total) * 100) : 0;
                 fputcsv($out, [
                     $data['nama_kelas'] ?? '-',
                     (int)($data['hadir'] ?? 0),
                     (int)($data['izin'] ?? 0),
                     (int)($data['sakit'] ?? 0),
                     (int)($data['alpa'] ?? 0),
-                    (int)($data['total'] ?? 0),
-                    (int)($data['percent_hadir'] ?? 0),
+                    $total,
+                    $percent,
                 ]);
             }
             fclose($out);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 
     public function detail(Request $request, $kelas)
@@ -213,11 +229,29 @@ class RekapKelasController extends Controller
             $rekapSiswa[$id]['percent_hadir'] = $total > 0 ? round(($d['hadir'] / $total) * 100) : 0;
         }
 
+        // Server-side pagination for table siswa
+        $perPage = 10;
+        $page = max(1, (int) $request->query('page', 1));
+        $values = array_values($rekapSiswa);
+        $total = count($values);
+        $offset = ($page - 1) * $perPage;
+        $slice = array_slice($values, $offset, $perPage);
+        $paginator = new LengthAwarePaginator(
+            $slice,
+            $total,
+            $perPage,
+            $page,
+            [
+                'path' => url()->current(),
+                'query' => $request->query(),
+            ]
+        );
+
         return view('rekap.kelas_detail', [
             'title' => 'Detail Kelas: ' . $kelasModel->nama_kelas,
             'page_title' => 'Detail Kelas: ' . $kelasModel->nama_kelas,
             'kelas' => $kelasModel,
-            'rekapSiswa' => $rekapSiswa,
+            'items' => $paginator, // paginated array of students
             'filters' => [
                 'start_date' => $start,
                 'end_date' => $end,

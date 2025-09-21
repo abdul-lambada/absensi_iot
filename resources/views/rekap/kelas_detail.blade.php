@@ -28,8 +28,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php $items = collect($rekapSiswa ?? [])->values(); @endphp
-                    @forelse($items as $row)
+                    @foreach(($items ?? []) as $row)
                         @php
                             $total = (int)($row['total'] ?? 0);
                             $hadir = (int)($row['hadir'] ?? 0);
@@ -47,14 +46,19 @@
                             <td class="text-center">{{ $total }}</td>
                             <td class="text-center">{{ $percent }}%</td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center text-muted">Tidak ada data untuk filter ini.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
+
+        @if(method_exists($items ?? null, 'links'))
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    Menampilkan {{ $items->firstItem() ?? 0 }} - {{ $items->lastItem() ?? 0 }} dari {{ $items->total() }} siswa
+                </div>
+                <div>{{ $items->links() }}</div>
+            </div>
+        @endif
     </div>
 </div>
 @endsection
