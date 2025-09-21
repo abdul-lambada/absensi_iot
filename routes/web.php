@@ -26,17 +26,17 @@ Route::middleware(['auth', 'role:admin,guru,kepala_sekolah'])->group(function ()
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
     // Grup dashboard dengan middleware role spesifik
-    Route::middleware(['role:admin'])->group(function () {
+    Route::middleware(['role:admin,kepala_sekolah'])->group(function () {
         Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
 
-        // CRUD hanya Admin (per-controller)
+        // CRUD Admin & Kepala Sekolah
         Route::resource('kelas', KelasController::class)->names('kelas');
         Route::resource('siswa', SiswaController::class)->names('siswa');
         Route::resource('perangkat', PerangkatController::class)->names('perangkat');
     });
 
-    // Absensi dapat diakses Admin dan Guru
-    Route::middleware(['role:admin,guru'])->group(function () {
+    // Absensi dapat diakses Admin, Guru, dan Kepala Sekolah
+    Route::middleware(['role:admin,guru,kepala_sekolah'])->group(function () {
         Route::resource('absensi-harian', AbsensiHarianController::class)->names('absensi-harian');
     });
 
