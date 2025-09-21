@@ -71,6 +71,12 @@
                         <span>Perangkat</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('users.index') }}">
+                        <i class="fas fa-fw fa-users-cog"></i>
+                        <span>Data Pengguna</span>
+                    </a>
+                </li>
             @endif
 
             <!-- Divider -->

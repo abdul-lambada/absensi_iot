@@ -9,6 +9,7 @@ use App\Http\Controllers\PerangkatController;
 use App\Http\Controllers\AbsensiHarianController;
 use App\Http\Controllers\KelasSayaController;
 use App\Http\Controllers\RekapAbsensiController;
+use App\Http\Controllers\UserController;
 
 // Halaman Welcome (simple landing)
 Route::view('/welcome', 'welcome')->name('welcome');
@@ -35,6 +36,7 @@ Route::middleware(['auth', 'role:admin,guru,kepala_sekolah'])->group(function ()
         Route::resource('kelas', KelasController::class)->names('kelas');
         Route::resource('siswa', SiswaController::class)->names('siswa');
         Route::resource('perangkat', PerangkatController::class)->names('perangkat');
+        Route::resource('users', UserController::class)->names('users');
     });
 
     // Absensi dapat diakses Admin, Guru, dan Kepala Sekolah
