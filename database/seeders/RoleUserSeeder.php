@@ -12,9 +12,9 @@ class RoleUserSeeder extends Seeder
     {
         // Admin
         User::updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['username' => 'admin'],
             [
-                'username' => 'admin',
+                'email' => 'admin@example.com',
                 'nama_lengkap' => 'Administrator',
                 'password_hash' => Hash::make('password'),
                 'role' => 'admin',
@@ -24,9 +24,9 @@ class RoleUserSeeder extends Seeder
 
         // Guru
         User::updateOrCreate(
-            ['email' => 'guru@example.com'],
+            ['username' => 'guru'],
             [
-                'username' => 'guru',
+                'email' => 'guru@example.com',
                 'nama_lengkap' => 'Guru',
                 'password_hash' => Hash::make('password'),
                 'role' => 'guru',
@@ -36,9 +36,9 @@ class RoleUserSeeder extends Seeder
 
         // Kepala Sekolah
         User::updateOrCreate(
-            ['email' => 'kepala@example.com'],
+            ['username' => 'kepala'],
             [
-                'username' => 'kepala',
+                'email' => 'kepala@example.com',
                 'nama_lengkap' => 'Kepala Sekolah',
                 'password_hash' => Hash::make('password'),
                 'role' => 'kepala_sekolah',
