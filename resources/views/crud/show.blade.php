@@ -5,7 +5,8 @@
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">{{ $page_title ?? $title ?? 'Detail' }}</h1>
     <div>
-        <a href="{{ route($routePrefix.'.edit', $item->id) }}" class="btn btn-sm btn-warning shadow-sm"><i class="fas fa-edit fa-sm text-white-50"></i> Ubah</a>
+        @php($paramKey = $paramKey ?? str_replace('-', '_', $routePrefix))
+        <a href="{{ route($routePrefix.'.edit', [$paramKey => $item->id]) }}" class="btn btn-sm btn-warning shadow-sm"><i class="fas fa-edit fa-sm text-white-50"></i> Ubah</a>
         <a href="{{ route($routePrefix.'.index') }}" class="btn btn-sm btn-secondary shadow-sm"><i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali</a>
     </div>
 </div>

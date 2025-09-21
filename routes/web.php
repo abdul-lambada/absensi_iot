@@ -33,7 +33,9 @@ Route::middleware(['auth', 'role:admin,guru,kepala_sekolah'])->group(function ()
         Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
 
         // CRUD Admin & Kepala Sekolah
-        Route::resource('kelas', KelasController::class)->names('kelas');
+        Route::resource('kelas', KelasController::class)
+            ->parameters(['kelas' => 'kelas'])
+            ->names('kelas');
         Route::resource('siswa', SiswaController::class)->names('siswa');
         Route::resource('perangkat', PerangkatController::class)->names('perangkat');
         Route::resource('users', UserController::class)->names('users');

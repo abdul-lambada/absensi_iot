@@ -34,4 +34,11 @@ class AbsensiHarian extends Model
     {
         return $this->belongsTo(Perangkat::class, 'perangkat_pulang_id');
     }
+
+    // Kompatibilitas: beberapa controller/view mengakses relasi 'perangkat'
+    // Map ke perangkat_masuk_id sebagai perangkat utama yang digunakan saat check-in
+    public function perangkat(): BelongsTo
+    {
+        return $this->belongsTo(Perangkat::class, 'perangkat_masuk_id');
+    }
 }

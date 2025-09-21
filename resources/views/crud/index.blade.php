@@ -34,15 +34,16 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php($paramKey = $paramKey ?? str_replace('-', '_', $routePrefix))
                     @forelse(($rows ?? []) as $row)
                         <tr>
                             @foreach(($row['cols'] ?? []) as $col)
                                 <td>{{ $col }}</td>
                             @endforeach
                             <td>
-                                <a href="{{ route($routePrefix.'.show', $row['id']) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
-                                <a href="{{ route($routePrefix.'.edit', $row['id']) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
-                                <form action="{{ route($routePrefix.'.destroy', $row['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                <a href="{{ route($routePrefix.'.show', [$paramKey => $row['id']]) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                                <a href="{{ route($routePrefix.'.edit', [$paramKey => $row['id']]) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                                <form action="{{ route($routePrefix.'.destroy', [$paramKey => $row['id']]) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
