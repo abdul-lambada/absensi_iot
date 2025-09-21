@@ -88,8 +88,22 @@
                         <span>Absensi Harian</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('rekap.index') }}">
+                        <i class="fas fa-fw fa-chart-line"></i>
+                        <span>Rekap Absensi</span>
+                    </a>
+                </li>
             @endif
 
+            @if(auth()->check() && auth()->user()->role === 'guru')
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('kelas-saya.index') }}">
+                        <i class="fas fa-fw fa-chalkboard-teacher"></i>
+                        <span>Kelas Saya</span>
+                    </a>
+                </li>
+            @endif
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -97,15 +111,6 @@
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
-
-            <!-- Sidebar Message -->
-            <div class="sidebar-card d-none d-lg-flex">
-                <img class="sidebar-card-illustration mb-2" src="/sb_admin/img/undraw_rocket.svg" alt="...">
-                <p class="text-center mb-2"><strong>SB Admin Pro</strong> is packed with premium features!</p>
-                <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro"
-                    target="_blank">Upgrade to Pro!</a>
-            </div>
-
         </ul>
         <!-- End of Sidebar -->
 
