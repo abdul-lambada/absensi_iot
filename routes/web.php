@@ -10,6 +10,7 @@ use App\Http\Controllers\AbsensiHarianController;
 use App\Http\Controllers\KelasSayaController;
 use App\Http\Controllers\RekapAbsensiController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 
 // Halaman Welcome (simple landing)
 Route::view('/welcome', 'welcome')->name('welcome');
@@ -27,6 +28,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 // Route index dashboard dengan auto-redirect berdasarkan role via controller (butuh auth)
 Route::middleware(['auth', 'role:admin,guru,kepala_sekolah'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
+    // Profil (semua role)
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
     // Grup dashboard dengan middleware role spesifik
     Route::middleware(['role:admin,kepala_sekolah'])->group(function () {
